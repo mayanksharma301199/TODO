@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+{% block script %}
+    <script>
+        {
+            function ChangeEvent(id) {
+                if (id.substring(id.length - 1) == '1') {
+                    var Identity = id.substring(0, id.length - 1);
+                    location.href = "TaskEdit/" + Identity+ "/" + document.getElementById(Identity).innerText
+                }
+                else if (id.substring(id.length - 1) == '2') {
+                    var Identity = id.substring(0, id.length - 1);
+                    location.href = "TaskDelete/" + Identity
+                }
+                else {
+                    var Identity = id.substring(0, id.length - 1);
+                    location.href = "StatusChange/" + Identity
+                }
+            }
+        }
+    </script>
+{% endblock script %}

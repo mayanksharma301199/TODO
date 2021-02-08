@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <title>Todo App</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">TODO</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div> 
+        </div>
+    </nav>
+    <div class="container">
+        <form action="NewTask" method="post" class="my-2">
+            {% csrf_token %}
+            <div class="row justify-content-center">
+            <div class="mb-3 col-lg-5 input-group-lg" style="font-size: x-large;">
+                    <label for="TaskContent" class="form-label">Enter The Task</label>
+                    <input type="text" class="form-control" name="TaskContent" id="TaskContent">
+                </div>
+            </div>
+            {% for Task in Data %}
+            <div class="border-top p-3">
+                <div class="row justify-content-center mx-3">
+                   <p name="TaskRealContent" id="{{Task.id}}" contenteditable="true" class="lead border mb-3 col-lg-5">
+                        {{Task.Content}}
+                    </p>
+                </div>
+                {% if Task.Status == 'true' %}
+                <div class="row justify-content-center mx-5 px-2">
+                    <div class="mb-3 col-lg-6 form-check">
+                        <input name="TaskStatus" onclick="ChangeEvent(id)" id="{{Task.id}}0" type="checkbox" class="btn-check" checked>
+                        <label class="btn btn-outline-secondary btn-sm" for="{{Task.id}}0">Checked</label>
+                    </div>
+                </div>
+                {% else %}
+                <div class="row justify-content-center mx-5 px-2">
+                    <div class="mb-3 col-lg-6 form-check">
+                        <input name="TaskStatus" onclick="ChangeEvent(id)" id="{{Task.id}}0" type="checkbox" class="btn-check">
+                        <label class="btn btn-outline-secondary btn-sm" for="{{Task.id}}0">Checked</label>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="row justify-content-center mx-4 ml-2">
+                    <div class="mb-3 col-lg-4 form-check">
+                        <div class="text-left mx-3">
+                            <a onclick="ChangeEvent(id)" id="{{Task.id}}1" name="EditBtn"
+                                class="btn btn-primary">Edit</a>
+                        </div>
+                    </div>
+                    <div class="mb-3 col-lg-2 form-check px-3">
+                        <div class="text-left mx-5">
+                            <a onclick="ChangeEvent(id)" id="{{Task.id}}2" name="DeleteBtn"
+                                class="btn btn-primary">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </form>
+    </div>
+    {% block script %}
+    {% endblock script %}
+</body>
+</html>
