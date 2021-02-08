@@ -6,7 +6,9 @@
 *.pot
 *.py[co]
 .tox/
-__pycache__
+TodoApp/__pycache__
+TodoWeb/migrations__pycache__
+TodoWeb/__pycache__
 MANIFEST
 dist/
 docs/_build/
