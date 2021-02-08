@@ -6,6 +6,7 @@
 *.pot
 *.py[co]
 .tox/
+.env
 TodoApp/__pycache__
 TodoWeb/migrations__pycache__
 TodoWeb/__pycache__
