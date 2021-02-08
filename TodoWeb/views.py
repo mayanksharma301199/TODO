@@ -19,15 +19,14 @@ def NewTask(request):
             DataDictionary = {
                         'Data' :Data 
                     } 
-            return render(request, 'JavaScript.html',DataDictionary)
+            return redirect('Home')
         else:
             TaskContent = request.POST.get('TaskContent')
             Data = Task.objects.all()
             DataDictionary = {
                         'Data' : Data 
                     } 
-            return render(request, 'JavaScript.html',DataDictionary) 
-
+            return redirect('Home')
 def StatusChange(request, id):
     SpecificTask = Task.objects.get(pk = id)
     if SpecificTask.Status == 'true':
