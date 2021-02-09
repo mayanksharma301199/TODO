@@ -1,21 +1,170 @@
 {% extends 'index.html' %}
 {% block script %}
-    <script>
-        {
-            function ChangeEvent(id) {
-                if (id.substring(id.length - 1) == '1') {
-                    var Identity = id.substring(0, id.length - 1);
-                    location.href = "TaskEdit/" + Identity+ "/" + document.getElementById(Identity).innerText
+<script>
+    {
+
+        function UrlHandler(Identity, Reference){
+
+            
+            if(Identity == "TaskContent" && Reference == "TaskInput"){
+
+                var UrlValue = "NewTask/N-" + document.getElementById("TaskContent").value
+
+                Url_Generator(UrlValue, MakeNewTask)
+
+
+            }
+
+            else if(Reference == "Checked"){
+
+                var UrlValue = "NewTask/C-" + Identity.substring(0, Identity.length-1)
+
+                Url_Generator(UrlValue, Checked)
+
+            }
+
+            else if(Reference == "Update"){
+
+                var UrlValue = "NewTask/U-" + Identity.substring(0, Identity.length-1) + "-" + document.getElementById(Identity.substring(0, Identity.length-1)).innerText
+
+                Url_Generator(UrlValue, Update)
+
+            }
+
+            else{
+
+                var UrlValue = "NewTask/D-" + Identity.substring(0, Identity.length-1)
+
+                Url_Generator(UrlValue, Delete)
+
+            }
+
+
+        }
+
+        function Checked(Response){
+
+            var Status = JSON.parse(Response.responseText)
+
+            if (Status.TaskStatus == "True"){
+
+                document.getElementById(Status.TaskId + "0").checked = true
+
+            }
+
+            else{
+
+                document.getElementById(Status.TaskId + "0").checked = false
+
+            }
+
+        }
+
+        function Update(Response){
+
+            var NewInformation = JSON.parse(Response.responseText)
+            
+            document.getElementById(NewInformation.TaskId).innerHTML = NewInformation.TaskNewContent
+
+        }
+
+        function Delete(Response){
+
+            var DeleteTask = JSON.parse(Response.responseText)
+
+            document.getElementById(DeleteTask.TaskId + "3").remove()
+
+        }
+
+        document.getElementById("TaskContent").addEventListener("keyup", function(KeyCode){
+
+            if(KeyCode.keyCode == 13){
+
+                UrlHandler("TaskContent", "TaskInput")
+
+            }
+
+        })
+
+        function MakeNewTask(Response) {
+
+            var Items = document.getElementById("ItemContainer").innerHTML
+
+            Items = Items + ItemBackground(JSON.parse(Response.responseText))
+
+            document.getElementById("ItemContainer").innerHTML = Items
+
+        }
+
+        function Url_Generator(UrlValue, CallFunction){
+
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+
+            var UrlRequest = new XMLHttpRequest()
+
+            UrlRequest.open("POST", UrlValue, true);
+            
+            UrlRequest.setRequestHeader("X-CSRFToken", csrftoken)
+            
+            UrlRequest.send();
+                
+            UrlRequest.onreadystatechange = function (){
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                        CallFunction(this)
+
                 }
-                else if (id.substring(id.length - 1) == '2') {
-                    var Identity = id.substring(0, id.length - 1);
-                    location.href = "TaskDelete/" + Identity
-                }
-                else {
-                    var Identity = id.substring(0, id.length - 1);
-                    location.href = "StatusChange/" + Identity
-                }
+
             }
         }
-    </script>
+
+        function ChangeEvent(id) {
+            if (id.substring(id.length - 1) == '1') {
+                var Identity = id.substring(0, id.length - 1);
+                location.href = "TaskEdit/" + Identity+ "/" + document.getElementById(Identity).innerText
+            }
+            else if (id.substring(id.length - 1) == '2') {
+                var Identity = id.substring(0, id.length - 1);
+                location.href = "TaskDelete/" + Identity
+            }
+            else {
+                var Identity = id.substring(0, id.length - 1);
+                location.href = "StatusChange/" + Identity
+            }
+        }
+
+       function ItemBackground(ResponsedData){
+        
+        var Background = ('<div class="border-top p-3">'+
+                '<div class="row justify-content-center mx-3">'+
+                   '<p name="TaskRealContent" id="'+ResponsedData.TaskId +'" contenteditable="true" class="lead border mb-3 col-lg-5">'+ ResponsedData.TaskData +'</p>'+
+                '</div>'+
+                
+                '<div class="row justify-content-center mx-5 px-2">'+
+                    '<div class="mb-3 col-lg-6 form-check">'+
+                        '<input name="TaskStatus" onclick="ChangeEvent(id)" id="'+ResponsedData.TaskId +'0" type="checkbox" class="btn-check">'+
+                        '<label class="btn btn-outline-secondary btn-sm" for="'+ResponsedData.TaskId +'0">Checked</label>'+
+                    '</div>'+
+                '</div>'+
+                
+                '<div class="row justify-content-center mx-4 ml-2">'+
+                    '<div class="mb-3 col-lg-4 form-check">'+
+                        '<div class="text-left mx-3">'+
+                            '<a onclick="ChangeEvent(id)" id="'+ResponsedData.TaskId +'1" name="EditBtn"'+
+                                'class="btn btn-primary">Update</a>'+
+                        '</div>'+
+                    '</div>'+
+                    '<div class="mb-3 col-lg-2 form-check px-3">'+
+                        '<div class="text-left mx-5">'+
+                            '<a onclick="ChangeEvent(id)" id="'+ResponsedData.TaskId +'2" name="DeleteBtn"'+
+                                'class="btn btn-primary">Delete</a>'+
+                        '</div>'+
+                    '</div>'+
+                '</div>'+
+            '</div>').toString()
+            return Background
+       }
+    }
+</script>
 {% endblock script %}
