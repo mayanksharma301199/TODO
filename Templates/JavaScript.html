@@ -2,40 +2,129 @@
 {% block script %}
 <script>
     {
+        FirstLoad()
+
+        function FirstLoad(){
+
+            setTimeout(function(){
+                
+                UrlHandler('FirstLoad', 'StartLoad')
+            
+            }, 5000)
+
+            setTimeout(function(){
+                
+                document.getElementById("ldgforpageload").remove()
+                document.getElementById("NaviBar").style.display = "block"
+                document.getElementById("MainContainer").style.display = "block"
+            
+            }, 3000)
+            
+
+        }
+
+        function Url_Generator(Method, UrlValue, CallFunction, Data){
+
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+
+            var UrlRequest = new XMLHttpRequest()
+
+            UrlRequest.open(Method, UrlValue, true);
+
+            UrlRequest.setRequestHeader("X-CSRFToken", csrftoken)
+
+            UrlRequest.send(Data);
+                
+            UrlRequest.onreadystatechange = function (){
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                        CallFunction(this)
+
+                }
+
+            }
+        }
+
+        function FirstLoadResponse(Response){
+
+            var AllTask = JSON.parse(Response.responseText)
+
+            document.getElementById("ldgfordata").remove()
+
+            for(task in AllTask){
+
+                ResponsedData = {"TaskId" :AllTask[task][0], "TaskData":AllTask[task][1], "TaskStatus":AllTask[task][2]}
+
+                var Item = document.getElementById("ItemContainer").innerHTML
+
+                Item = Item + ItemBackground(ResponsedData)
+
+                document.getElementById("ItemContainer").innerHTML = Item
+
+            }
+
+        }
 
         function UrlHandler(Identity, Reference){
 
             
             if(Identity == "TaskContent" && Reference == "TaskInput"){
 
-                var UrlValue = "NewTask/N-" + document.getElementById("TaskContent").value
+                var formdata = new FormData()
+            
+                formdata.append('Name', 'N')
 
-                Url_Generator(UrlValue, MakeNewTask)
+                formdata.append('Value', document.getElementById("TaskContent").value)
+            
+                Url_Generator("POST", "NewTask", MakeNewTask, formdata)
 
+            }
 
+            else if(Identity == "FirstLoad" && Reference == "StartLoad"){
+
+                var formdata = new FormData()
+            
+                formdata.append('Name', 'F')
+            
+                 Url_Generator("GET", "NewTask", FirstLoadResponse, formdata)
             }
 
             else if(Reference == "Checked"){
 
-                var UrlValue = "NewTask/C-" + Identity.substring(0, Identity.length-1)
+                var formdata = new FormData()
+            
+                formdata.append('Name', 'C')
 
-                Url_Generator(UrlValue, Checked)
+                formdata.append('Identity', Identity.substring(0, Identity.length-1))
+        
+                Url_Generator("POST", "NewTask", Checked, formdata)
 
             }
 
             else if(Reference == "Update"){
 
-                var UrlValue = "NewTask/U-" + Identity.substring(0, Identity.length-1) + "-" + document.getElementById(Identity.substring(0, Identity.length-1)).innerText
+                var formdata = new FormData()
+            
+                formdata.append('Name', 'U')
 
-                Url_Generator(UrlValue, Update)
+                formdata.append('Identity', Identity.substring(0, Identity.length-1))
+
+                formdata.append('Value',  document.getElementById(Identity.substring(0, Identity.length-1)).innerText)
+        
+                Url_Generator("POST", "NewTask", Update, formdata)
 
             }
 
             else{
 
-                var UrlValue = "NewTask/D-" + Identity.substring(0, Identity.length-1)
+                var formdata = new FormData()
+            
+                formdata.append('Name', 'D')
 
-                Url_Generator(UrlValue, Delete)
+                formdata.append('Identity', Identity.substring(0, Identity.length-1))
+    
+                Url_Generator("POST", "NewTask", Delete, formdata)
 
             }
 
@@ -96,74 +185,54 @@
 
         }
 
-        function Url_Generator(UrlValue, CallFunction){
-
-            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
-
-            var UrlRequest = new XMLHttpRequest()
-
-            UrlRequest.open("POST", UrlValue, true);
-            
-            UrlRequest.setRequestHeader("X-CSRFToken", csrftoken)
-            
-            UrlRequest.send();
-                
-            UrlRequest.onreadystatechange = function (){
-
-                if (this.readyState == 4 && this.status == 200) {
-
-                        CallFunction(this)
-
-                }
-
-            }
-        }
-
-        function ChangeEvent(id) {
-            if (id.substring(id.length - 1) == '1') {
-                var Identity = id.substring(0, id.length - 1);
-                location.href = "TaskEdit/" + Identity+ "/" + document.getElementById(Identity).innerText
-            }
-            else if (id.substring(id.length - 1) == '2') {
-                var Identity = id.substring(0, id.length - 1);
-                location.href = "TaskDelete/" + Identity
-            }
-            else {
-                var Identity = id.substring(0, id.length - 1);
-                location.href = "StatusChange/" + Identity
-            }
-        }
-
        function ItemBackground(ResponsedData){
+
+        var BackgroundPartTwo
+
+        var BackgroundPartOne = `<div class="border-top p-3" id = "${ResponsedData.TaskId}3">
+                <div class="row justify-content-center mx-3">
+                   <p name="TaskRealContent" id="${ResponsedData.TaskId}" contenteditable="true" class="lead border mb-3 col-lg-5"> ${ResponsedData.TaskData} </p>
+                </div>
+                
+                <div class="row justify-content-center mx-5 px-2">
+                    <div class="mb-3 col-lg-6 form-check">`
+
+        if (ResponsedData.TaskStatus == "true") {
+
+          BackgroundPartTwo =  `<input name="TaskStatus" onclick="UrlHandler(id, 'Checked')" id="${ResponsedData.TaskId}0" type="checkbox" class="btn-check" Checked>`
+
+
+        } 
+        else {
+
+            BackgroundPartTwo =  `<input name="TaskStatus" onclick="UrlHandler(id, 'Checked')" id="${ResponsedData.TaskId}0" type="checkbox" class="btn-check">`
+
+        }              
         
-        var Background = ('<div class="border-top p-3">'+
-                '<div class="row justify-content-center mx-3">'+
-                   '<p name="TaskRealContent" id="'+ResponsedData.TaskId +'" contenteditable="true" class="lead border mb-3 col-lg-5">'+ ResponsedData.TaskData +'</p>'+
-                '</div>'+
-                
-                '<div class="row justify-content-center mx-5 px-2">'+
-                    '<div class="mb-3 col-lg-6 form-check">'+
-                        '<input name="TaskStatus" onclick="ChangeEvent(id)" id="'+ResponsedData.TaskId +'0" type="checkbox" class="btn-check">'+
-                        '<label class="btn btn-outline-secondary btn-sm" for="'+ResponsedData.TaskId +'0">Checked</label>'+
-                    '</div>'+
-                '</div>'+
-                
-                '<div class="row justify-content-center mx-4 ml-2">'+
-                    '<div class="mb-3 col-lg-4 form-check">'+
-                        '<div class="text-left mx-3">'+
-                            '<a onclick="ChangeEvent(id)" id="'+ResponsedData.TaskId +'1" name="EditBtn"'+
-                                'class="btn btn-primary">Update</a>'+
-                        '</div>'+
-                    '</div>'+
-                    '<div class="mb-3 col-lg-2 form-check px-3">'+
-                        '<div class="text-left mx-5">'+
-                            '<a onclick="ChangeEvent(id)" id="'+ResponsedData.TaskId +'2" name="DeleteBtn"'+
-                                'class="btn btn-primary">Delete</a>'+
-                        '</div>'+
-                    '</div>'+
-                '</div>'+
-            '</div>').toString()
-            return Background
+        
+        
+        
+        var BackgroundPartThree = `<label class="btn btn-outline-secondary btn-sm" for="${ResponsedData.TaskId}0">Checked</ label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row justify-content-center mx-4 ml-2">
+                                        <div class="mb-3 col-lg-4 form-check">
+                                            <div class="text-left mx-3">
+                                                <a onclick="UrlHandler(id, 'Update')" id="${ResponsedData.TaskId}1" name="EditBtn"
+                                                    class="btn btn-primary">Update</a>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 col-lg-2 form-check px-3">
+                                            <div class="text-left mx-5">
+                                                <a onclick="UrlHandler(id, 'Delete')" id="${ResponsedData.TaskId}2" name="DeleteBtn"
+                                                    class="btn btn-primary">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`
+        
+            return (BackgroundPartOne + BackgroundPartTwo + BackgroundPartThree).toString()
        }
     }
 </script>

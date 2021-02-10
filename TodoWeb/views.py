@@ -4,97 +4,97 @@ from .models import Task
 import json
 
 def Home(request):
-    Data = Task.objects.all()
-    DataDictionary = {
-                'Data' : Data 
-            }
-    return render(request,'JavaScript.html', DataDictionary)
+    # Data = Task.objects.all()
+    # DataDictionary = {
+    #             'Data' : Data 
+    #         }
+    return render(request, "JavaScript.html")
+        
+def NewTask(request):
 
-def NewTask(request, UrlValue):
-    if request.method == 'POST':
-        if(UrlValue != ""):
+    if (request.method == 'POST' and request.POST.get('Name') != "" and request.POST.get('Name').__eq__('N')):
             
-            IdentifyUrl = UrlValue
+        RealData = request.POST.get('Value')   
 
-            if (IdentifyUrl[0] == 'N'):
-                    
-                RealData = IdentifyUrl[2:]   
+        NewTaskObeject = Task(Content = RealData)
 
-                NewTaskObeject = Task(Content = RealData)
+        NewTaskObeject.save()
 
-                NewTaskObeject.save()
-  
-                ResponsedData = {"TaskId" :NewTaskObeject.id, "TaskData":NewTaskObeject.Content}
+        ResponsedData = {"TaskId" :NewTaskObeject.id, "TaskData":NewTaskObeject.Content, 'TaskStatus': NewTaskObeject.Status}
 
-                Response = json.dumps(ResponsedData)
-     
-                return HttpResponse(Response)
+        Response = json.dumps(ResponsedData)
 
-            elif (IdentifyUrl[0] == 'C'):
+        return HttpResponse(Response)
 
-                RealData = IdentifyUrl[2:]  
+    elif (request.method == 'POST' and request.POST.get('Name') != "" and request.POST.get('Name').__eq__('C')):
 
-                TaskCompleteIdentity = int(RealData) 
+        RealData = request.POST.get('Identity')   
 
-                SpecificTask = Task.objects.get(pk = TaskCompleteIdentity)
+        SpecificTask = Task.objects.get(pk = RealData)
 
-                if SpecificTask.Status == 'true':
+        if SpecificTask.Status == 'true':
 
-                    SpecificTask.Status = 'false'
+            SpecificTask.Status = 'false'
 
-                    SpecificTask.save()
+            SpecificTask.save()
 
-                    TaskCompleteIdentity = str(TaskCompleteIdentity)
+            ResponsedData = {"TaskId" :RealData, "TaskStatus":'False'}
 
-                    ResponsedData = {"TaskId" :TaskCompleteIdentity, "TaskStatus":'False'}
+            Response = json.dumps(ResponsedData)
 
-                    Response = json.dumps(ResponsedData)
-     
-                    return HttpResponse(Response)
+            return HttpResponse(Response)
 
-                else:
+        else:
 
-                    SpecificTask.Status = 'true'
+            SpecificTask.Status = 'true'
 
-                    SpecificTask.save()
+            SpecificTask.save()
 
-                    TaskCompleteIdentity = str(TaskCompleteIdentity)
+            ResponsedData = {"TaskId" :RealData, "TaskStatus":'True'}
 
-                    ResponsedData = {"TaskId" :TaskCompleteIdentity, "TaskStatus":'True'}
+            Response = json.dumps(ResponsedData)
 
-                    Response = json.dumps(ResponsedData)
-     
-                    return HttpResponse(Response) 
+            return HttpResponse(Response) 
 
-            elif (IdentifyUrl[0] == 'U'):
+    elif (request.method == 'POST' and request.POST.get('Name') != "" and request.POST.get('Name').__eq__('U')):
 
-                RealData = IdentifyUrl[2:]
+        SpecificTask = Task.objects.get(pk = request.POST.get('Identity'))
 
-                DataList = RealData.split("-") 
+        SpecificTask.Content = request.POST.get('Value')
 
-                SpecificTask = Task.objects.get(pk = int(DataList[0]))
+        SpecificTask.save()
 
-                SpecificTask.Content = DataList[1]
+        ResponsedData = {"TaskId" :request.POST.get('Identity'), "TaskNewContent":request.POST.get('Value')}
 
-                SpecificTask.save()
+        Response = json.dumps(ResponsedData)
 
-                ResponsedData = {"TaskId" :DataList[0], "TaskNewContent":DataList[1]}
+        return HttpResponse(Response)
 
-                Response = json.dumps(ResponsedData)
-     
-                return HttpResponse(Response)
+    elif (request.method == 'GET' and request.GET.get('Name') != "" and request.GET.get('Name').__eq__('F')):
 
-            else:
+        ResponsedData = {}
 
-                RealData = IdentifyUrl[2:]
+        Data = Task.objects.all()
 
-                SpecificTask = Task.objects.get(pk = int(RealData))
+        for item in Data:
+            
+            ResponsedData[str(item)] = [item.id, item.Content, item.Status]
 
-                SpecificTask.delete()
+        Response = json.dumps(ResponsedData)
 
-                ResponsedData = {"TaskId" : RealData}
+        return HttpResponse(Response)
+            
+    elif (request.method == 'POST' and request.POST.get('Name') != "" and request.POST.get('Name').__eq__('D')):
 
-                Response = json.dumps(ResponsedData)
-     
-                return HttpResponse(Response)
-                
+        RealData = request.POST.get('Identity')
+
+        SpecificTask = Task.objects.get(pk = RealData)
+
+        SpecificTask.delete()
+
+        ResponsedData = {"TaskId" : RealData}
+
+        Response = json.dumps(ResponsedData)
+
+        return HttpResponse(Response)
+        
