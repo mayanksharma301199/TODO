@@ -73,9 +73,7 @@
 
                 var formdata = new FormData()
             
-                formdata.append('Name', 'N')
-
-                formdata.append('Value', document.getElementById("TaskContent").value)
+                formdata.append('NewTask', document.getElementById("TaskContent").value)
             
                 Url_Generator("POST", "NewTask", MakeNewTask, formdata)
 
@@ -85,7 +83,7 @@
 
                 var formdata = new FormData()
             
-                formdata.append('Name', 'F')
+                formdata.append('StartLoad', 'true')
             
                  Url_Generator("GET", "NewTask", FirstLoadResponse, formdata)
             }
@@ -94,9 +92,7 @@
 
                 var formdata = new FormData()
             
-                formdata.append('Name', 'C')
-
-                formdata.append('Identity', Identity.substring(0, Identity.length-1))
+                formdata.append('Checked', Identity.substring(0, Identity.length-1))
         
                 Url_Generator("POST", "NewTask", Checked, formdata)
 
@@ -106,9 +102,7 @@
 
                 var formdata = new FormData()
             
-                formdata.append('Name', 'U')
-
-                formdata.append('Identity', Identity.substring(0, Identity.length-1))
+                formdata.append('Update', Identity.substring(0, Identity.length-1))
 
                 formdata.append('Value',  document.getElementById(Identity.substring(0, Identity.length-1)).innerText)
         
@@ -120,9 +114,7 @@
 
                 var formdata = new FormData()
             
-                formdata.append('Name', 'D')
-
-                formdata.append('Identity', Identity.substring(0, Identity.length-1))
+                formdata.append('Delete', Identity.substring(0, Identity.length-1))
     
                 Url_Generator("POST", "NewTask", Delete, formdata)
 

@@ -12,89 +12,89 @@ def Home(request):
         
 def NewTask(request):
 
-    if (request.method == 'POST' and request.POST.get('Name') != "" and request.POST.get('Name').__eq__('N')):
-            
-        RealData = request.POST.get('Value')   
+        if (request.method == 'POST' and request.POST.get('NewTask') != None):
+                
+            RealData = request.POST.get('NewTask')   
 
-        NewTaskObeject = Task(Content = RealData)
+            NewObeject = Task(Content = RealData)
 
-        NewTaskObeject.save()
+            NewObeject.save()
 
-        ResponsedData = {"TaskId" :NewTaskObeject.id, "TaskData":NewTaskObeject.Content, 'TaskStatus': NewTaskObeject.Status}
-
-        Response = json.dumps(ResponsedData)
-
-        return HttpResponse(Response)
-
-    elif (request.method == 'POST' and request.POST.get('Name') != "" and request.POST.get('Name').__eq__('C')):
-
-        RealData = request.POST.get('Identity')   
-
-        SpecificTask = Task.objects.get(pk = RealData)
-
-        if SpecificTask.Status == 'true':
-
-            SpecificTask.Status = 'false'
-
-            SpecificTask.save()
-
-            ResponsedData = {"TaskId" :RealData, "TaskStatus":'False'}
+            ResponsedData = {"TaskId" :NewObeject.id, "TaskData":NewObeject.Content, 'TaskStatus': NewObeject.Status}
 
             Response = json.dumps(ResponsedData)
 
             return HttpResponse(Response)
 
-        else:
+        elif (request.method == 'POST' and request.POST.get('Checked') != None):
 
-            SpecificTask.Status = 'true'
+            RealData = request.POST.get('Checked')   
+
+            SpecificTask = Task.objects.get(pk = RealData)
+
+            if SpecificTask.Status == 'true':
+
+                SpecificTask.Status = 'false'
+
+                SpecificTask.save()
+
+                ResponsedData = {"TaskId" :RealData, "TaskStatus":'False'}
+
+                Response = json.dumps(ResponsedData)
+
+                return HttpResponse(Response)
+
+            else:
+
+                SpecificTask.Status = 'true'
+
+                SpecificTask.save()
+
+                ResponsedData = {"TaskId" :RealData, "TaskStatus":'True'}
+
+                Response = json.dumps(ResponsedData)
+
+                return HttpResponse(Response) 
+
+        elif (request.method == 'POST' and request.POST.get('Update') != None):
+
+            SpecificTask = Task.objects.get(pk = request.POST.get('Update'))
+
+            SpecificTask.Content = request.POST.get('Value')
 
             SpecificTask.save()
 
-            ResponsedData = {"TaskId" :RealData, "TaskStatus":'True'}
+            ResponsedData = {"TaskId" :request.POST.get('Update'), "TaskNewContent":request.POST.get('Value')}
 
             Response = json.dumps(ResponsedData)
 
-            return HttpResponse(Response) 
+            return HttpResponse(Response)
 
-    elif (request.method == 'POST' and request.POST.get('Name') != "" and request.POST.get('Name').__eq__('U')):
+        elif (request.method == 'GET' and request.GET.get('StartLoad') != ""):
 
-        SpecificTask = Task.objects.get(pk = request.POST.get('Identity'))
+            ResponsedData = {}
 
-        SpecificTask.Content = request.POST.get('Value')
+            Data = Task.objects.all()
 
-        SpecificTask.save()
+            for item in Data:
+                
+                ResponsedData[str(item)] = [item.id, item.Content, item.Status]
 
-        ResponsedData = {"TaskId" :request.POST.get('Identity'), "TaskNewContent":request.POST.get('Value')}
+            Response = json.dumps(ResponsedData)
 
-        Response = json.dumps(ResponsedData)
+            return HttpResponse(Response)
+                
+        elif (request.method == 'POST' and request.POST.get('Delete') != None):
 
-        return HttpResponse(Response)
+            RealData = request.POST.get('Delete')
 
-    elif (request.method == 'GET' and request.GET.get('Name') != "" and request.GET.get('Name').__eq__('F')):
+            SpecificTask = Task.objects.get(pk = RealData)
 
-        ResponsedData = {}
+            SpecificTask.delete()
 
-        Data = Task.objects.all()
+            ResponsedData = {"TaskId" : RealData}
 
-        for item in Data:
+            Response = json.dumps(ResponsedData)
+
+            return HttpResponse(Response)
             
-            ResponsedData[str(item)] = [item.id, item.Content, item.Status]
-
-        Response = json.dumps(ResponsedData)
-
-        return HttpResponse(Response)
-            
-    elif (request.method == 'POST' and request.POST.get('Name') != "" and request.POST.get('Name').__eq__('D')):
-
-        RealData = request.POST.get('Identity')
-
-        SpecificTask = Task.objects.get(pk = RealData)
-
-        SpecificTask.delete()
-
-        ResponsedData = {"TaskId" : RealData}
-
-        Response = json.dumps(ResponsedData)
-
-        return HttpResponse(Response)
-        
