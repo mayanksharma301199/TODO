@@ -4,10 +4,7 @@ from .models import Task
 import json
 
 def Home(request):
-    # Data = Task.objects.all()
-    # DataDictionary = {
-    #             'Data' : Data 
-    #         }
+    
     return render(request, "JavaScript.html")
         
 def NewTask(request):
