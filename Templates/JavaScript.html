@@ -2,9 +2,10 @@
 {% block script %}
 <script>
     {
+        
         FirstLoad()
 
-        function FirstLoad(){
+        function FirstLoad(user_id){
 
             setTimeout(function(){
                 
@@ -33,36 +34,53 @@
 
             UrlRequest.setRequestHeader("X-CSRFToken", csrftoken)
 
+            UrlRequest.setRequestHeader("UserToken", localStorage.getItem("CurrentUserToken"))
+
             UrlRequest.send(Data);
                 
             UrlRequest.onreadystatechange = function (){
 
                 if (this.readyState == 4 && this.status == 200) {
 
-                        CallFunction(this)
+                        ExpirationTokenCheck(CallFunction, this)
 
                 }
 
             }
         }
 
-        function FirstLoadResponse(Response){
+        function ExpirationTokenCheck(ResponseFunction, Response){
 
-            var AllTask = JSON.parse(Response.responseText)
+            if (Response.responseText == "Time Out!"){
 
-            document.getElementById("ldgfordata").remove()
-
-            for(task in AllTask){
-
-                ResponsedData = {"TaskId" :AllTask[task][0], "TaskData":AllTask[task][1], "TaskStatus":AllTask[task][2]}
-
-                var Item = document.getElementById("ItemContainer").innerHTML
-
-                Item = Item + ItemBackground(ResponsedData)
-
-                document.getElementById("ItemContainer").innerHTML = Item
+                LogOut()
 
             }
+            else{
+
+                ResponseFunction(Response)
+
+            }
+
+        }
+
+        function FirstLoadResponse(Response){  
+
+                var AllTask = JSON.parse(Response.responseText)
+
+                document.getElementById("ldgfordata").remove()
+
+                for(task in AllTask){
+
+                    ResponsedData = {"TaskId" :AllTask[task][0], "TaskData":AllTask[task][1], "TaskStatus":AllTask[task][2]}
+
+                    var Item = document.getElementById("ItemContainer").innerHTML
+
+                    Item = Item + ItemBackground(ResponsedData)
+
+                    document.getElementById("ItemContainer").innerHTML = Item
+
+                }   
 
         }
 
@@ -75,17 +93,16 @@
             
                 formdata.append('NewTask', document.getElementById("TaskContent").value)
             
-                Url_Generator("POST", "NewTask", MakeNewTask, formdata)
+                Url_Generator("POST", "UserHome/NewTask", MakeNewTask, formdata)
 
             }
 
-            else if(Identity == "FirstLoad" && Reference == "StartLoad"){
+            else if(Identity == 'FirstLoad' && Reference == "StartLoad"){
 
                 var formdata = new FormData()
             
-                formdata.append('StartLoad', 'true')
-            
-                 Url_Generator("GET", "NewTask", FirstLoadResponse, formdata)
+                Url_Generator("GET", "UserHome/NewTask", FirstLoadResponse, formdata)
+
             }
 
             else if(Reference == "Checked"){
@@ -94,7 +111,7 @@
             
                 formdata.append('Checked', Identity.substring(0, Identity.length-1))
         
-                Url_Generator("POST", "NewTask", Checked, formdata)
+                Url_Generator("POST", "UserHome/NewTask", Checked, formdata)
 
             }
 
@@ -106,7 +123,7 @@
 
                 formdata.append('Value',  document.getElementById(Identity.substring(0, Identity.length-1)).innerText)
         
-                Url_Generator("POST", "NewTask", Update, formdata)
+                Url_Generator("POST", "UserHome/NewTask", Update, formdata)
 
             }
 
@@ -116,7 +133,7 @@
             
                 formdata.append('Delete', Identity.substring(0, Identity.length-1))
     
-                Url_Generator("POST", "NewTask", Delete, formdata)
+                Url_Generator("POST", "UserHome/NewTask", Delete, formdata)
 
             }
 
@@ -183,7 +200,7 @@
 
         var BackgroundPartOne = `<div class="border-top p-3" id = "${ResponsedData.TaskId}3">
                 <div class="row justify-content-center mx-3">
-                   <p name="TaskRealContent" id="${ResponsedData.TaskId}" contenteditable="true" class="lead border mb-3 col-lg-5"> ${ResponsedData.TaskData} </p>
+                   <p name="TaskRealContent" style="font-weight: bold;" id="${ResponsedData.TaskId}" contenteditable="true" class="lead border mb-3 col-lg-5"> ${ResponsedData.TaskData} </p>
                 </div>
                 
                 <div class="row justify-content-center mx-5 px-2">
@@ -204,7 +221,7 @@
         
         
         
-        var BackgroundPartThree = `<label class="btn btn-outline-secondary btn-sm" for="${ResponsedData.TaskId}0">Checked</ label>
+        var BackgroundPartThree = `<label class="btn btn-outline-warning btn-sm" for="${ResponsedData.TaskId}0">Checked</ label>
                                         </div>
                                     </div>
                                     
@@ -212,19 +229,26 @@
                                         <div class="mb-3 col-lg-4 form-check">
                                             <div class="text-left mx-3">
                                                 <a onclick="UrlHandler(id, 'Update')" id="${ResponsedData.TaskId}1" name="EditBtn"
-                                                    class="btn btn-primary">Update</a>
+                                                    class="btn btn-success">Update</a>
                                             </div>
                                         </div>
                                         <div class="mb-3 col-lg-2 form-check px-3">
                                             <div class="text-left mx-5">
                                                 <a onclick="UrlHandler(id, 'Delete')" id="${ResponsedData.TaskId}2" name="DeleteBtn"
-                                                    class="btn btn-primary">Delete</a>
+                                                    class="btn btn-info">Delete</a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>`
         
             return (BackgroundPartOne + BackgroundPartTwo + BackgroundPartThree).toString()
+       }
+
+       function LogOut(){
+            
+            localStorage.removeItem("CurrentUserToken")
+            location.href = "/"
+
        }
     }
 </script>

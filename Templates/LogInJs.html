@@ -1,0 +1,103 @@
+{% extends 'LogIn.html' %}
+
+{% block script %}
+
+<script>
+
+ function LoadEvents(){
+
+
+  if(localStorage.getItem("CurrentUserToken") != null){
+
+    window.location = "UserHome"
+
+  }
+  else{
+
+    document.getElementById("MainContainer").style.display = "block"
+
+  }
+
+  }
+
+  function UrlHandler(){
+
+    var EmailValue = document.getElementById("Email").value
+
+    var PasswordValue = document.getElementById("Password").value
+
+    if (EmailValue == "" || PasswordValue == ""){
+
+      document.getElementById("ErrorDiv").style.display = "block"
+
+      document.getElementById("ErrorParagraph").innerHTML = "Enter all value"
+
+    }
+    else if (!(EmailValue.includes("@") && EmailValue.includes(".com"))){
+
+      document.getElementById("ErrorDiv").style.display = "block"
+
+      document.getElementById("ErrorParagraph").innerHTML = "Enter the Proper Email"
+
+    }
+    else{
+
+      formdata = new FormData()
+
+      formdata.append("Email", document.getElementById("Email").value)
+
+      formdata.append("Password", document.getElementById("Password").value)
+
+      Url_Generator("POST", "LogIn", GettingToken, formdata) 
+    
+    }
+
+  }
+
+  function Url_Generator(Method, UrlValue, CallFunction, Data){
+
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+
+            var UrlRequest = new XMLHttpRequest()
+
+            UrlRequest.open(Method, UrlValue, true);
+
+            UrlRequest.setRequestHeader("X-CSRFToken", csrftoken)
+
+            UrlRequest.send(Data);
+                
+            UrlRequest.onreadystatechange = function (){
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                        CallFunction(this)
+
+                }
+
+            }
+  }
+
+  function GettingToken(Response){
+
+      if (Response.responseText == "Usename or Password is Wrong"){
+
+        document.getElementById("ErrorDiv").style.display = "block"
+
+        document.getElementById("ErrorParagraph").innerHTML = Response.responseText
+
+      }
+      else{
+
+        var CurrentUserToken = JSON.parse(Response.responseText)
+
+        localStorage.setItem("CurrentUserToken", CurrentUserToken.token)
+
+        window.location = "UserHome"
+        
+      }
+
+  }
+
+</script>
+
+{% endblock script %}
