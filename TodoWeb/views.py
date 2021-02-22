@@ -222,12 +222,8 @@ def JwtTokenDecode(CurrentUserToken):
 
     IsExpire = round(time.time())
 
-    print(IsExpire)
-
     DecodedToken = jwt_decode_handler(CurrentUserToken)
 
     TokenExpiryTime = DecodedToken["exp"]
-
-    print(DecodedToken)
 
     return jwt_decode_handler(CurrentUserToken)
