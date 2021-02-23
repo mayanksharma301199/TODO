@@ -1,0 +1,24 @@
+{% extends "CreateAccount.html" %}
+
+{% block script %}
+  
+<script>
+
+    function LogInCheck(){
+
+        if(localStorage.getItem("CurrentUserToken") != null) {
+            
+            window.location = "UserHome"
+
+        }
+        else{
+
+            document.getElementById("MainContainer").style.display = "block"
+
+        } 
+
+    }
+
+</script>
+
+{% endblock script %}

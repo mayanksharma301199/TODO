@@ -34,7 +34,9 @@
 
             UrlRequest.setRequestHeader("X-CSRFToken", csrftoken)
 
-            UrlRequest.setRequestHeader("UserToken", localStorage.getItem("CurrentUserToken"))
+            var Authorization ="Bearer " + localStorage.getItem("CurrentUserToken")
+
+            UrlRequest.setRequestHeader("Authorization", Authorization)
 
             UrlRequest.send(Data);
                 

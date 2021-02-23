@@ -139,9 +139,11 @@ STATICFILES_DIRS = [
 JWT_AUTH = {
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=60),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=6000),
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
     'JWT_SECRET_KEY': SECRET_KEY,
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 }
 
 REST_FRAMEWORK = {

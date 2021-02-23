@@ -23,7 +23,7 @@ def NewTask(request):
 
         try:
 
-            decodedToken = JwtTokenDecode(request.headers.get("UserToken"))
+            decodedToken = JwtTokenDecode(request.headers.get("Authorization"))
 
         except:
 
@@ -105,7 +105,7 @@ def NewTask(request):
 
         try:
 
-            decodedToken = JwtTokenDecode(request.headers.get("UserToken"))
+            decodedToken = JwtTokenDecode(request.headers.get("Authorization"))
 
         except:
 
@@ -172,21 +172,25 @@ def NewAccount(request):
              return redirect('/')
 
          else:
+
+             try:
+
+                SpecificUser = User.objects.get(UserEmail = Email, Password = Password)
+
+                NotMatchPass = {"Truthness":"Matched Pair Error"}
+
+                return render(request, 'CreateAccount.html', NotMatchPass)
+
+             except:    
+
+                NewUser = User(Name = Name, UserEmail = Email, Password = Password)
+
+                NewUser.save()
             
-             for EachUser in AllUser:
-
-                 if(EachUser.UserEmail == Email and EachUser.Password == Password):
-
-                     return render(request, 'CreateAccount.html', NotMatchPass) 
-
-             NewUser = User(Name = Name, UserEmail = Email, Password = Password)
-
-             NewUser.save()
-            
-             return redirect('/')  
+                return redirect('/')  
     else:
 
-        return render(request, 'CreateAccount.html', NotMatchPass)          
+        return render(request, 'CreateAccountJs.html', NotMatchPass)          
 
 def LogIn(request):
     
@@ -196,34 +200,36 @@ def LogIn(request):
 
             Password = request.POST.get('Password') 
 
-            AllUser = User.objects.all()
+            try:
 
-            for EachUser in AllUser:
+                SpecificUser = User.objects.get(UserEmail = Email, Password = Password)
 
-                if(EachUser.UserEmail == Email and EachUser.Password == Password):
+                id = str(SpecificUser.id)
 
-                    id = str(EachUser.id)
+                SpecificUser.username = Email
 
-                    EachUser.username = Email
+                payload = jwt_payload_handler(SpecificUser)
 
-                    payload = jwt_payload_handler(EachUser)
+                token = jwt_encode_handler(payload)
 
-                    token = jwt_encode_handler(payload)
+                ResponsedData = {"token" : token}
 
-                    ResponsedData = {"token" : token}
+                Response = json.dumps(ResponsedData)
 
-                    Response = json.dumps(ResponsedData)
+                return HttpResponse(Response)  
 
-                    return HttpResponse(Response)
+            except:
 
-            return HttpResponse("Usename or Password is Wrong")
+                return HttpResponse("Usename or Password is Wrong")
 
 def JwtTokenDecode(CurrentUserToken):
 
+    RealToken = CurrentUserToken.split(" ")
+
     IsExpire = round(time.time())
 
-    DecodedToken = jwt_decode_handler(CurrentUserToken)
+    DecodedToken = jwt_decode_handler(RealToken[1])
 
     TokenExpiryTime = DecodedToken["exp"]
 
-    return jwt_decode_handler(CurrentUserToken)
+    return DecodedToken
